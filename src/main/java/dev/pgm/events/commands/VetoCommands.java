@@ -1,6 +1,5 @@
 package dev.pgm.events.commands;
 
-import app.ashcon.intake.parametric.annotation.Text;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Dependency;
@@ -21,8 +20,7 @@ public class VetoCommands extends BaseCommand {
 
   @CommandAlias("veto")
   @Description("Veto a map")
-  public void veto(
-      CommandSender sender, Match match, TournamentFormat format, @Text String option) {
+  public void veto(CommandSender sender, Match match, TournamentFormat format, String option) {
     if (format.currentRound() == null || !(format.currentRound() instanceof VetoRound)) {
       sender.sendMessage(ChatColor.RED + "Veto round is not currently running!");
       return;

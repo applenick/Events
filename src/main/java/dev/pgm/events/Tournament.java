@@ -77,7 +77,8 @@ public class Tournament extends JavaPlugin {
 
     commands
         .getCommandContexts()
-        .registerContext(Match.class, c -> PGM.get().getMatchManager().getMatch(c.getSender()));
+        .registerIssuerOnlyContext(
+            Match.class, c -> PGM.get().getMatchManager().getMatch(c.getSender()));
 
     commands
         .getCommandContexts()
@@ -85,19 +86,19 @@ public class Tournament extends JavaPlugin {
             MatchPlayer.class,
             c -> {
               if (!c.getIssuer().isPlayer()) {
-                throw new InvalidCommandArgument("You are unable to run this command");
+                throw new InvalidCommandArgument("You are unable to run this command", false);
               }
               final MatchPlayer player = PGM.get().getMatchManager().getPlayer(c.getPlayer());
               if (player != null) {
                 return player;
               }
               throw new InvalidCommandArgument(
-                  "Sorry, an error occured while resolving your player");
+                  "Sorry, an error occured while resolving your player", false);
             });
 
     commands
         .getCommandContexts()
-        .registerContext(
+        .registerIssuerOnlyContext(
             TournamentFormat.class,
             c -> {
               Optional<TournamentFormat> tournamentFormat = tournamentManager.currentTournament();
@@ -113,7 +114,7 @@ public class Tournament extends JavaPlugin {
 
                 return format;
               }
-              throw new InvalidCommandArgument("No tournament is currently running!");
+              throw new InvalidCommandArgument("No tournament is currently running!", false);
             });
 
     commands.registerCommand(new VetoCommands());

@@ -1,9 +1,11 @@
 package dev.pgm.events.commands;
 
-import app.ashcon.intake.parametric.annotation.Text;
+import static net.kyori.adventure.text.Component.text;
+
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Dependency;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
@@ -30,6 +32,7 @@ import tc.oc.pgm.api.integration.Integration;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.match.MatchManager;
 import tc.oc.pgm.api.player.MatchPlayer;
+import tc.oc.pgm.util.Audience;
 
 @CommandAlias("tourney|tournament|tm|events")
 public class TournamentCommands extends BaseCommand {
@@ -39,7 +42,17 @@ public class TournamentCommands extends BaseCommand {
   @Dependency private TournamentManager manager;
   @Dependency private TournamentTeamManager teamManager;
 
-  @Subcommand("score")
+  @Default
+  public void commandUsage(CommandSender sender) {
+    if (!sender.hasPermission(STAFF_PERM)) {
+      Audience.get(sender).sendWarning(text("/tourney <scores|rounds>"));
+      return;
+    }
+    Audience.get(sender)
+        .sendWarning(text("/tourney <scores|rounds|create|register|list|info|unregisterall>"));
+  }
+
+  @Subcommand("scores")
   @Description("Shows the current score in the tournament")
   public void currentScore(CommandSender sender, TournamentFormat format) {
     if (format instanceof FormatTournamentImpl) {
@@ -80,7 +93,7 @@ public class TournamentCommands extends BaseCommand {
   @Description("Creates a tournament")
   @Syntax("<format>")
   @CommandPermission(STAFF_PERM)
-  public void tourney(CommandSender sender, Match match, @Text String pool) {
+  public void tourney(CommandSender sender, Match match, String pool) {
     manager.createTournament(match, MapFormatXMLParser.parse(pool));
     sender.sendMessage(ChatColor.GOLD + "Starting tournament.");
   }
@@ -89,7 +102,7 @@ public class TournamentCommands extends BaseCommand {
   @Description("Register a team")
   @Syntax("<team>")
   @CommandPermission(STAFF_PERM)
-  public void register(CommandSender sender, @Text String name) {
+  public void register(CommandSender sender, String name) {
     TournamentTeam team = ConfigTeamParser.getInstance().getTeam(name);
     if (team == null) { // TODO move to provider
       sender.sendMessage(ChatColor.RED + "Team not found!");
@@ -128,7 +141,7 @@ public class TournamentCommands extends BaseCommand {
   @Description("View information about a team")
   @Syntax("<team>")
   @CommandPermission(STAFF_PERM)
-  public void info(CommandSender sender, @Text String name) {
+  public void info(CommandSender sender, String name) {
     TournamentTeam team = ConfigTeamParser.getInstance().getTeam(name);
     if (team == null) {
       sender.sendMessage(ChatColor.RED + "Team not found!");
